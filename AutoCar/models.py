@@ -1,3 +1,6 @@
+from datetime import datetime
+
+from django.contrib.auth.models import User
 from django.db import models
 
 from django.db import models
@@ -40,23 +43,22 @@ class Car(models.Model):
     production_date = models.DateField()
     brand = models.CharField(max_length=124)
     color = models.CharField(max_length=124)
-
-
-class User(models.Model):
-    name = models.CharField(max_length=124)
-    purchase_date = models.DateField()
-    sale_date = models.DateField(null=True)
-    car = models.ManyToManyField(Car)
-
-
-class Usercar(models.Model):
     user = models.ForeignKey(User, on_delete=CASCADE)
-    car = models.ForeignKey(Car, on_delete=CASCADE)
+    purchase_date = models.DateField(null=True)
+
+
+# class Profile(models.Model):
+#     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
+#     name = models.CharField(max_length=200, null=True)
+#
+#     def __str__(self):
+#         return self.name
 
 
 class Change(models.Model):
     change_type = models.IntegerField(choices=CHANGE)
-    change_date = models.DateField()
+    change_date = models.DateField(auto_now_add=True, blank=True)
+    change_cost = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     car = models.ForeignKey(Car, on_delete=CASCADE)
 
 
@@ -66,10 +68,11 @@ class Refueling(models.Model):
     amount_paid = models.DecimalField(max_digits=5, decimal_places=2)
     kilometers_traveled = models.IntegerField()
     car = models.ForeignKey(Car, on_delete=CASCADE)
+    fuel_date = models.DateField(default=datetime.now, blank=True)
 
 
 class Replenishment(models.Model):
     fluid_type = models.IntegerField(choices=REPLENISHMENT)
     price = models.DecimalField(max_digits=5, decimal_places=2)
-    date = models.DateField()
+    date = models.DateField(auto_now_add=True, blank=True)
     car = models.ForeignKey(Car, on_delete=CASCADE)

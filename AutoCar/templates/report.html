@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+{% block title %}Podsumowanie wydatków{% endblock %} <br>
+ <br>
+{% block content %}
+    <meta charset="UTF-8">
+    <title>Samochód {{ car }} użytkownika {{ current_user }}</title>
+</head>
+<body>
+    Zestawienie wydatków od początku zakupu samochodu:<br>
+<br>
+    PALIWO
+    {%  for fuel in refuels %}
+        <ul>rodzaj paliwa: {{ fuel_type }}</ul>
+        <ul>ilość zatankowana: {{ fuel.amount_fueled }} l</ul>
+        <ul>koszt: {{ fuel.amount_paid }} zł</ul>
+        <ul>data tankowania: {{ fuel.fuel_date }}</ul>
+        <ul>przejechane kilometry na dzień tankowania: {{ fuel.kilometers_traveled }} km</ul><br>
+    {% endfor %}
+    Wydatki całkowite na paliwo: {{ fuel_costs }} zł<br>
+<br>
+    NAPRAWY/ZMIANY W SAMOCHODZIE
+    {%  for change in changes %}
+        <ul>zmiana: {{ change_type }}</ul>
+        <ul>data: {{ change.change_date }}</ul>
+        <ul>koszt: {{ change.change_cost }} zł</ul>
+    {% endfor %}
+    Wydatki całkowite na naprawy: {{ changes_costs }} zł<br>
+<br>
+    ZAKUPY DODATKOWE DO SAMOCHODU:
+    {%  for fluid in fluids %}
+        <ul>zakup: {{ fluid_type }}</ul>
+        <ul>koszt: {{ fluid.price }} zł</ul>
+        <ul>data: {{ fluid.date }}</ul>
+    {% endfor %}
+    <ul>Płyny i dodatki: {{ fluids_costs }} zł</ul>
+    Całość wydatków: {{ general_costs }} zł
+<p><a href="{% url 'base' %}">Powrót do strony głównej</a></p>
+</body>
+{% endblock %}
+</html>

@@ -1,0 +1,35 @@
+{% block title %}AutoCar Strona Główna{% endblock %} <br>
+ <br>
+{% block content %}
+{% if user.is_authenticated %}
+  Witaj {{ user.username }}!<br>
+    <br>
+  Samochód {{ car.brand }}, kolor {{ car.color }}, wyprodukowany w dniu {{ car.production_date }}<br>
+    <br>
+
+  Status wydatków na {{ year }} rok:<br>
+    <br>
+  <li>paliwo: {{ fuel_costs }} zł</li>
+    <br>
+  <li>koszty napraw: {{ change_costs }} zł</li>
+    <br>
+  <li>koszty płynów i eksploatacji: {{ replenishment_costs }} zł</li>
+    <br>
+  <li>koszty całkowite na {{ year }} rok: {{ general_costs }} zł</li>
+    <br>
+
+  <a href="{% url 'report' %}" class="button">Podsumowanie wydatków dla Twojego samochodu</a><br>
+    <br>
+
+  <a href="{% url 'refuel' %}" class="button">Zarejestruj tankowanie Twojego samochodu</a><br>
+    <br>
+  <a href="{% url 'add_change' %}" class="button">Zarejestruj naprawę/ulepszenie Twojego samochodu</a><br>
+    <br>
+  <a href="{% url 'replenish' %}" class="button">Zapisz dodatkowe wydatki dla Twojego samochodu</a><br>
+    <br>
+  <p><a href="{% url 'logout' %}">Wyloguj się</a></p>
+{% else %}
+  <p>Nie jesteś zalogowany</p>
+  <a href="{% url 'login' %}">Logowanie</a>
+{% endif %}
+{% endblock %}
