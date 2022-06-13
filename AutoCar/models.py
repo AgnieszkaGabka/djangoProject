@@ -47,14 +47,6 @@ class Car(models.Model):
     purchase_date = models.DateField(null=True)
 
 
-# class Profile(models.Model):
-#     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
-#     name = models.CharField(max_length=200, null=True)
-#
-#     def __str__(self):
-#         return self.name
-
-
 class Change(models.Model):
     change_type = models.IntegerField(choices=CHANGE)
     change_date = models.DateField(auto_now_add=True, blank=True)

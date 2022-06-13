@@ -13,7 +13,7 @@ from django.contrib.auth.models import User
 
 class LoginView(View): #logowanie do aplikacji
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs): #pusty formularz do wpisania loginu i hasła
         form = LoginForm()
         context = {
             'form': form
@@ -22,51 +22,51 @@ class LoginView(View): #logowanie do aplikacji
 
     def post(self, request):
         form = LoginForm(request.POST)
-        if form.is_valid():
+        if form.is_valid():#pobieranie danych z formularza i autoryzacja użytkownika
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
             user = authenticate(request, username=username, password=password)
             if user is not None and user.is_authenticated:
-                login(request, user)
-                messages.Info(request, "You are now logged in as",  {user.username})
+                login(request, user) #jeśli użytwkonik jest prawidłowy, przekieruj na stronę główną
+                messages.Info(request, "Jesteś zalogowany jako",  {user.username})
                 return HttpResponseRedirect('/main/')
-        messages.Error(request, "Invalid username or password.")
+        messages.Error(request, "Błędny login lub hasło") #jeśli użytkownik nie został wykryty, przekiruj na stronę logowania
         return HttpResponseRedirect('/login/')
 
 
 class BaseView(View): #strona główna - nazwa samochodu użytkownika, zestawienie wydatków na ten rok
 
     def get(self, request):
-        current_user = request.user
+        current_user = request.user #pobieranie użytkownika z requestu i wyszukiwanie jego samochodu
         try:
             current_car = Car.objects.filter(user=current_user)[0]
         except IndexError:
-            return redirect('add_car')
-        year = date.today().year #ustawienie obecnego roku do zestawienia kosztów
+            return redirect('add_car') #jeśli użytkownik nie ma samochodu, przekieruj na stronę dodawania samochodu
+        year = date.today().year #ustawienie obecnego roku
         starting_day_of_current_year = datetime.now().date().replace(month=1, day=1)
         ending_day_of_current_year = datetime.now().date().replace(month=12, day=31)
-        fuels = Refueling.objects.filter(car=current_car, fuel_date__range=[starting_day_of_current_year,
+        fuels = Refueling.objects.filter(car=current_car, fuel_date__range=[starting_day_of_current_year, #wyciągnięcie tankowań dla samochodu uzytkownika w tym roku
                                                                            ending_day_of_current_year])
         fuel_prices = []
         for fuel in fuels:
-            fuel_prices.append(int(fuel.amount_fueled))
+            fuel_prices.append(int(fuel.amount_fueled)) #dodanie do listy kosztów wszystkich tankowań w obecnym roku
         if fuel_prices:
             fuel_costs = sum(fuel_prices) #koszty tankowania w tym roku
         else:
             fuel_costs = 0
-        changes = Change.objects.filter(car=current_car, change_date__range=[starting_day_of_current_year, ending_day_of_current_year])
+        changes = Change.objects.filter(car=current_car, change_date__range=[starting_day_of_current_year, ending_day_of_current_year]) #wyciągnięcie napraw dla samochodu uzytkownika w tym roku
         changes_prices = []
         for change in changes:
-            changes_prices.append(int(change.change_cost))
+            changes_prices.append(int(change.change_cost)) #dodanie do listy kosztów wszystkich napraw w obecnym roku
         if changes_prices:
             change_costs = sum(changes_prices) #koszty zmian/napraw w tym roku
         else:
             change_costs = 0
-        replenishments = Replenishment.objects.filter(car=current_car, date__range=[starting_day_of_current_year,
+        replenishments = Replenishment.objects.filter(car=current_car, date__range=[starting_day_of_current_year, #wyciągnięcie zakupów dla samochodu uzytkownika w tym roku
                                                                        ending_day_of_current_year])
         replenishment_prices = []
         for replenishment in replenishments:
-            replenishment_prices.append(int(replenishment.price))
+            replenishment_prices.append(int(replenishment.price)) #dodanie do listy kosztów wszystkich zakupów w obecnym roku
         if replenishment_prices:
             replenishment_costs = sum(replenishment_prices) #koszty płynów w tym roku
         else:
@@ -90,15 +90,15 @@ class RegisterView(View): #rejestracja nowego użytkownika
 
     def get(self, request):
         form = CreateUserForm()
-        return render(request, 'register.html', {'form': form})
+        return render(request, 'register.html', {'form': form}) #formularz dodawania użytkownika
 
     def post(self, request):
         form = CreateUserForm(request.POST)
 
         if form.is_valid():
-            user = form.save()
+            user = form.save() #jeśli dane się zgadzają, utwórz konto
 
-            messages.Info(request, 'Your account has been successfully created')
+            messages.Info(request, 'Twoje konto zostało utworzone poprawnie')
             return redirect('login')
         context = {'form': form}
         return render(request, 'register.html', context)
@@ -107,7 +107,7 @@ class RegisterView(View): #rejestracja nowego użytkownika
 class AddCarView(View): #strona dodwania samochodu
 
     def get(self, request):
-        form = AddCarForm()
+        form = AddCarForm() #formularz dodawania samochodu
         return render(request, 'addCar.html', {'form': form})
 
     def post(self, request):
@@ -119,9 +119,9 @@ class AddCarView(View): #strona dodwania samochodu
             color = form.cleaned_data['color']
             purchase_date = form.cleaned_data['purchase_date']
             car = Car.objects.create(production_date=production_date, brand=brand, color=color, user=current_user,
-                                     purchase_date=purchase_date)
+                                     purchase_date=purchase_date) #utworzenie samochodu przypisanego do zalogowanego użytkownika
             car.save()
-            return redirect(f'/main/')
+            return redirect(f'/main/') #jeśli samochód utworzony został poprawnie, przekieruj na stronę głowną
         else:
             return render(request, 'addCar.html', {'form': form})
 
@@ -129,7 +129,7 @@ class AddCarView(View): #strona dodwania samochodu
 class AddChangeView(View): #dodawanie zmiany/naprawy w samochodzie
 
     def get(self, request):
-        form = AddChangeForm()
+        form = AddChangeForm() #formularz dodawania naprawy
         return render(request, 'addChange.html', {'form': form})
 
     def post(self, request):
@@ -137,12 +137,12 @@ class AddChangeView(View): #dodawanie zmiany/naprawy w samochodzie
         if form.is_valid():
             change = form.cleaned_data['change_type']
             c = [str(i) for i in change]
-            change_type = str("".join(c))
+            change_type = str("".join(c)) #wydobycie numeru przypisanego do nazwy naprawy wyświetlonej na stronie
             change_date = form.cleaned_data['change_date']
             change_cost = form.cleaned_data['change_cost']
             car = Car.objects.filter(user=request.user)[0]
             change = Change.objects.create(change_type=change_type, change_date=change_date, change_cost=change_cost,
-                                           car=car)
+                                           car=car) #zapisanie zmiany przypisanej do samochodu zalogowanego użytkownika
             return redirect(f'/main/')
         return render(request, 'addChange.html', {'form': form})
 
@@ -150,7 +150,7 @@ class AddChangeView(View): #dodawanie zmiany/naprawy w samochodzie
 class RefuelView(View): #rejestrowanie tankowania paliwa
 
     def get(self, request):
-        form = RefuelForm()
+        form = RefuelForm()#wyświetlenie formularza tankowania
         return render(request, 'refuel.html', {'form': form})
 
     def post(self, request):
@@ -158,7 +158,7 @@ class RefuelView(View): #rejestrowanie tankowania paliwa
         if form.is_valid():
             fuel = form.cleaned_data['fuel_type']
             f = [str(i) for i in fuel]
-            fuel_type = str("".join(f))
+            fuel_type = str("".join(f))#wydobycie numeru przypisanego do paliwa wyświetlonego na stronie
             amount_fueled = form.cleaned_data['amount_fueled']
             amount_paid = form.cleaned_data['amount_paid']
             kilometers_traveled = form.cleaned_data['kilometers_traveled']
@@ -166,14 +166,14 @@ class RefuelView(View): #rejestrowanie tankowania paliwa
             car = Car.objects.filter(user=request.user)[0]
             refuel = Refueling.objects.create(fuel_type=fuel_type, amount_fueled=amount_fueled, amount_paid=amount_paid,
                                               kilometers_traveled=kilometers_traveled, car=car, fuel_date=fuel_date)
-            return redirect(f'/main/')
+            return redirect(f'/main/') #zapisanie tankowania przypisanego do samochodu zalogowanego użytkownika i przekierowanie na stronę główną
         return render(request, 'refuel.html', {'form': form})
 
 
 class ReplenishView(View): #zakupy (płyny, olej itd)
 
     def get(self, request):
-        form = ReplenishForm()
+        form = ReplenishForm() #formularz dodawnaia zakupu
         return render(request, 'replenish.html', {'form': form})
 
     def post(self, request):
@@ -181,11 +181,11 @@ class ReplenishView(View): #zakupy (płyny, olej itd)
         if form.is_valid():
             fluid = form.cleaned_data['fluid_type']
             f = [str(i) for i in fluid]
-            fluid_type = str("".join(f))
+            fluid_type = str("".join(f)) #wydobycie numeru przypisanego do zakupu wyświetlonego na stronie
             price = form.cleaned_data['price']
             date = form.cleaned_data['date']
             car = Car.objects.filter(user=request.user)[0]
-            replenish = Replenishment.objects.create(fluid_type=fluid_type, price=price, date=date, car=car)
+            replenish = Replenishment.objects.create(fluid_type=fluid_type, price=price, date=date, car=car) #zapisanie zakupu
             return redirect(f'/main/')
         return render(request, 'replenish.html', {'form': form})
 
@@ -195,34 +195,34 @@ class ReportView(View): #strona z zestawieniem od momentu zakupu samochodu
     def get(self, request):
         current_user = request.user
         car = Car.objects.filter(user=request.user)[0]
-        refuels = Refueling.objects.filter(car=car)
+        refuels = Refueling.objects.filter(car=car) #wydobycie wszystkich tankowań dla samochodu zalogowanego użytkownika
         if refuels:
-            fuels = []
+            fuels = [] #dodanie kwoty tankowań do listy
             for fuel in refuels:
                 fuel_type = fuel.get_fuel_type_display()
                 fuels.append(int(fuel.amount_paid))
-            fuel_costs = sum(fuels)
+            fuel_costs = sum(fuels) #zsumowanie wartości tankowań
         else:
             fuel_costs = 0
-        changes = Change.objects.filter(car=car)
+        changes = Change.objects.filter(car=car) #wydobycie wszystkich napraw dla samochodu zalogowanego użytkownika
         if changes:
-            changes_all = []
+            changes_all = []#dodanie kwoty napraw do listy
             for change in changes:
                 change_type = change.get_change_type_display()
                 changes_all.append(int(change.change_cost))
             changes_costs = sum(changes_all)
         else:
             changes_costs = 0
-        fluids = Replenishment.objects.filter(car=car)
+        fluids = Replenishment.objects.filter(car=car) #wydobycie wszystkich zakupów dla samochodu zalogowanego użytkownika
         if fluids:
-            fluids_all = []
+            fluids_all = []#dodanie kwoty zakupów do listy
             for fluid in fluids:
                 fluid_type = fluid.get_fluid_type_display()
                 fluids_all.append(int(fluid.price))
             fluids_costs = sum(fluids_all)
         else:
             fluids_costs = 0
-        general_costs = int(fuel_costs) + int(changes_costs) + int(fluids_costs)
+        general_costs = int(fuel_costs) + int(changes_costs) + int(fluids_costs) #zsumowanie wszystkich kosztów
         if not general_costs:
             general_costs = 0
         context = {
@@ -245,5 +245,5 @@ class ReportView(View): #strona z zestawieniem od momentu zakupu samochodu
 class LogoutUserView(View): #wylogowanie użytkownika
     def get(self, request):
         logout(request)
-        messages.Info(request, 'You are logged out')
+        messages.Info(request, 'Jesteś wylogowany')
         return redirect('/login/')

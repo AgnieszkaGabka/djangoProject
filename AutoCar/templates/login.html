@@ -1,8 +1,8 @@
-<h2>Log In</h2>
+<h2>Logowanie</h2>
 <form method="post">
   {% csrf_token %}
   {{ form.as_p }}
-  <button type="submit">Log In</button>
+  <button type="submit">Zaloguj się</button>
     {% if messages %}
   {% for message in messages %}
     <div class="alert alert-dismissible alert-success">
@@ -13,5 +13,5 @@
     </div>
  {% endfor %}
 {% endif %}
-    <p>Don't have an account? <a href="{% url 'register' %}">Register</a></p>
+    <p>Nie masz konta? <a href="{% url 'register' %}">Zarejestruj się</a></p>
 </form>
