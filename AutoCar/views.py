@@ -86,22 +86,7 @@ class BaseView(View): #strona główna - nazwa samochodu użytkownika, zestawien
         return render(request, 'base.html', context)
 
 
-class RegisterView(View): #rejestracja nowego użytkownika
 
-    def get(self, request):
-        form = CreateUserForm()
-        return render(request, 'register.html', {'form': form}) #formularz dodawania użytkownika
-
-    def post(self, request):
-        form = CreateUserForm(request.POST)
-
-        if form.is_valid():
-            user = form.save() #jeśli dane się zgadzają, utwórz konto
-
-            messages.Info(request, 'Twoje konto zostało utworzone poprawnie')
-            return redirect('login')
-        context = {'form': form}
-        return render(request, 'register.html', context)
 
 
 class AddCarView(View): #strona dodwania samochodu

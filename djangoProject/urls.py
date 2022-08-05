@@ -6,7 +6,7 @@ from AutoCar.views import LoginView, LogoutUserView, RegisterView, AddCarView, A
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('login/', LoginView.as_view(), name='login_view'),
+    path('login/', LoginView.as_view(), name='login'),
     path('main/', BaseView.as_view(), name='base'),
     path('register/', RegisterView.as_view(), name='register'),
     path('add_car/', AddCarView.as_view(), name='add_car'),
